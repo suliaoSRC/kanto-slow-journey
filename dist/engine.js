@@ -1,6 +1,10 @@
 const Journey = (() => {
   const data =
     typeof JourneyData !== "undefined" ? JourneyData : require("./data.js");
+  const arena =
+    typeof JourneyArena !== "undefined"
+      ? JourneyArena
+      : require("./arena-sim.js");
   const { species, moves, regions, availableMoves, stones, captureRates } =
     data;
   const xpNeeded = (level) => level * 16;
@@ -227,95 +231,28 @@ const Journey = (() => {
       : 0;
   }
   function battle(s, foes) {
-    let i = 0,
-      j = 0,
-      allyHP = 0,
-      enemyHP = 0,
-      rounds = 0;
-    const lines = [],
-      turns = [];
-    const roster = s.team.map((id) => {
+    const team = s.team.map((id) => {
       const mon = s.box[id];
       return {
         id,
+        name: name(id),
         level: mon.level,
+        moves: mon.moves,
+        stage: species[id].stage,
+        types: species[id].types,
         hp: 18 + mon.level * 3 + species[id].stage * 9,
       };
     });
-    const opponents = foes.map((foe) => ({
-      id: foe[0],
-      name: foe[1],
-      level: foe[3],
-      hp: 16 + foe[3] * 2,
+    const opponents = foes.map(([id, name, types, level, move]) => ({
+      id,
+      name,
+      types,
+      level,
+      moves: [move],
+      stage: 0,
+      hp: 16 + level * 2,
     }));
-    const note = (side, move, damage) => {
-      if (turns.length < 320)
-        turns.push([
-          i,
-          j,
-          Math.max(0, allyHP),
-          Math.max(0, enemyHP),
-          side,
-          move,
-          damage,
-        ]);
-    };
-    while (i < s.team.length && j < foes.length && rounds++ < 160) {
-      const id = s.team[i],
-        mon = s.box[id],
-        types = species[id].types,
-        foe = foes[j];
-      if (allyHP <= 0) allyHP = roster[i].hp;
-      if (enemyHP <= 0) enemyHP = opponents[j].hp;
-      if (!turns.length) note("start", "", 0);
-      const attacks = mon.moves
-        .map((move) => ({
-          name: move,
-          amount: hit(mon.level, move, types, foe[2]),
-        }))
-        .sort((a, b) => b.amount - a.amount);
-      const best = attacks[0];
-      const damage = Math.round(best.amount * (1 + species[id].stage * 0.13));
-      enemyHP -= damage;
-      note("ally", best.name, damage);
-      if (enemyHP <= 0) {
-        lines.push(name(id) + "用" + best.name + "击败了" + foe[1] + "。");
-        j++;
-        continue;
-      }
-      const incoming = hit(foe[3], foe[4], foe[2], types);
-      if (!damage && !incoming) {
-        lines.push(name(id) + "与" + foe[1] + "无法互相造成伤害，换下休息。");
-        i++;
-        allyHP = 0;
-        continue;
-      }
-      allyHP -= incoming;
-      note("foe", foe[4], incoming);
-      if (allyHP <= 0) {
-        const hint = damage === 0 ? "（可换用其他属性招式）" : "";
-        lines.push(
-          name(id) +
-            "的" +
-            best.name +
-            "造成 " +
-            damage +
-            " 点伤害，被" +
-            foe[1] +
-            "的" +
-            foe[4] +
-            "击倒" +
-            hint +
-            "。",
-        );
-        i++;
-      }
-    }
-    return {
-      win: j === foes.length,
-      lines,
-      replay: { roster, opponents, turns },
-    };
+    return arena.simulate(team, opponents, moves, hit);
   }
   function challenge(s, now) {
     const gym = region(s).gyms[s.stop];

@@ -15,7 +15,87 @@ const JourneySave = (() => {
     isId(entry.id) &&
     int(entry.level, 1, 100) &&
     int(entry.hp, 1, 600);
+  function arenaReplay(raw) {
+    const groups = [raw.roster, raw.opponents],
+      coord = (value) => int(value, 0, 100);
+    if (
+      !groups.every(
+        (group, side) =>
+          Array.isArray(group) &&
+          group.length &&
+          group.length <= (side ? 6 : 3) &&
+          group.every(rosterEntry),
+      )
+    )
+      return undefined;
+    const actor = (frame, side) => {
+      if (!Array.isArray(frame) || frame.length !== 6) return false;
+      const [slot, x, y, hp, pose, direction] = frame;
+      return (
+        int(slot, 0, groups[side].length - 1) &&
+        coord(x) &&
+        coord(y) &&
+        int(hp, 0, groups[side][slot].hp) &&
+        int(pose, 0, 3) &&
+        int(direction, 0, 7)
+      );
+    };
+    const time = (value) => int(value, 0, 64_001);
+    if (
+      !Array.isArray(raw.frames) ||
+      raw.frames.length < 2 ||
+      raw.frames.length > 335 ||
+      !raw.frames.every(
+        (frame, index) =>
+          Array.isArray(frame) &&
+          frame.length === 3 &&
+          time(frame[0]) &&
+          (index ? frame[0] > raw.frames[index - 1][0] : frame[0] === 0) &&
+          actor(frame[1], 0) &&
+          actor(frame[2], 1),
+      ) ||
+      !Array.isArray(raw.events) ||
+      raw.events.length > 600 ||
+      !raw.events.every((event, index) => {
+        if (
+          !Array.isArray(event) ||
+          !time(event[0]) ||
+          (index && event[0] < raw.events[index - 1][0]) ||
+          !int(event[1], 0, 1)
+        )
+          return false;
+        if (event[2] === "cast")
+          return (
+            event.length === 12 &&
+            Object.hasOwn(data.moves, event[3]) &&
+            data.moves[event[3]][0] === event[4] &&
+            ["dash", "shot", "beam", "wave", "guard"].includes(event[5]) &&
+            event.slice(6, 10).every(coord) &&
+            int(event[10], 100, 600) &&
+            isId(event[11])
+          );
+        return (
+          event.length === 6 &&
+          ["hit", "miss"].includes(event[2]) &&
+          int(event[3], 0, 2000) &&
+          coord(event[4]) &&
+          coord(event[5])
+        );
+      })
+    )
+      return undefined;
+    const clean = (group) =>
+      group.map(({ id, level, hp }) => ({ id, level, hp }));
+    return {
+      format: 2,
+      roster: clean(groups[0]),
+      opponents: clean(groups[1]),
+      frames: raw.frames,
+      events: raw.events,
+    };
+  }
   function replay(raw) {
+    if (raw?.format === 2) return arenaReplay(raw);
     if (
       !object(raw) ||
       !Array.isArray(raw.roster) ||

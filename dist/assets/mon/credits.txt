@@ -174,3 +174,5 @@ Creative Commons Attribution-NonCommercial 4.0: https://creativecommons.org/lice
 图鉴数据、简体中文名称、默认形态属性、进化表和招式学习记录：PokeAPI CSV，版本 de6760be38b60a3024f1d9054330ff265f0dc619。
 https://github.com/PokeAPI/pokeapi/tree/de6760be38b60a3024f1d9054330ff265f0dc619/data/v2/csv
 本作的遇见地点、出战招式配置和部分进化条件按挂机玩法调整。未配专属像素动画的条目采用本作原创属性徽记。
+
+实时道馆赛场为本作原创生成场景。进化石库存像素图标由本作绘制。

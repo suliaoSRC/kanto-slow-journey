@@ -81,6 +81,25 @@ function icon(id) {
     "</small></span>"
   );
 }
+const stoneColors = {
+  火之石: "#d66b46",
+  水之石: "#52a4cf",
+  雷之石: "#e4bf3f",
+  叶之石: "#83aa56",
+  月之石: "#b69dc7",
+  日之石: "#e8974b",
+  光之石: "#f0c774",
+  暗之石: "#805fb1",
+  觉醒之石: "#7fbebb",
+  冰之石: "#85cee5",
+};
+function stoneIcon(stone) {
+  return (
+    '<i class="pixel-crystal" style="--item-color:' +
+    stoneColors[stone] +
+    '" aria-hidden="true"></i>'
+  );
+}
 const name = (id) => D.species[id].name;
 const fieldTitle = (field) =>
   field.extension ? field.name : field.name + "地区";
@@ -390,7 +409,7 @@ function render() {
       modeControls +
       "</div>" +
       track +
-      (s?.history[0]?.replay
+      (JourneyBattle.canReplay(s?.history[0])
         ? '<div class="route-replay"><button class="textbtn" data-replay="0">回看最近一场对战</button></div>'
         : ""),
   );
@@ -635,6 +654,7 @@ function dexCards() {
   const numericSearch = /^\d+$/.test(search);
   const ids = scope.filter(
     (id) =>
+      (!$("dexart").checked || animatedMon.has(id)) &&
       (!search ||
         (numericSearch
           ? fmt(id).startsWith(search) || String(id).startsWith(search)
@@ -705,7 +725,7 @@ function renderDex() {
     $("dex").innerHTML =
       '<div class="pagepanel"><div class="rowline"><h2>图鉴记录</h2><span class="num" id="dexcount" aria-live="polite"></span></div><div class="filter"><select id="dexregion" aria-label="图鉴范围"><option value="all">全国图鉴</option>' +
       options +
-      '</select><select id="dexfilter" aria-label="收集状态"><option>全部</option><option>已目击</option><option>已收服</option></select><input id="dexsearch" type="search" placeholder="搜索名称或编号" aria-label="搜索图鉴"></div><div class="dexgrid" id="dexgrid"></div><div class="dex-pager" id="dexpager"></div></div>';
+      '</select><select id="dexfilter" aria-label="收集状态"><option>全部</option><option>已目击</option><option>已收服</option></select><input id="dexsearch" type="search" placeholder="搜索名称或编号" aria-label="搜索图鉴"><label class="dex-art-filter"><input type="checkbox" id="dexart">有像素图</label></div><div class="dexgrid" id="dexgrid"></div><div class="dex-pager" id="dexpager"></div></div>';
     const reset = () => {
       dexPage = 0;
       dexCards();
@@ -719,6 +739,7 @@ function renderDex() {
       reset();
     };
     $("dexregion").onchange = reset;
+    $("dexart").onchange = reset;
   }
   dexCards();
 }
@@ -874,7 +895,8 @@ function supplies() {
             stone +
             '" ' +
             (s.badges.length < 3 || !s.research ? "disabled" : "") +
-            "><b>" +
+            '><b class="item-label">' +
+            stoneIcon(stone) +
             stone +
             "</b><small>持有 " +
             (s.stones[stone] || 0) +
@@ -989,7 +1011,7 @@ function battleDetails(battle, levelBonus = 0) {
       last.lines
         .map((line) => '<p class="brief">' + escapeText(line) + "</p>")
         .join("") +
-      (last.replay
+      (JourneyBattle.canReplay(last)
         ? '<button class="secondary block" data-replay="' +
           state.history.indexOf(last) +
           '">回放对战</button>'

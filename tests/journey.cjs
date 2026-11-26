@@ -273,9 +273,32 @@ assert.deepEqual(imported.team, finals.team);
 assert.equal(imported.hall.count, 2);
 assert.deepEqual(imported.history[0].replay, finals.history[0].replay);
 const lastBattle = imported.history[0].replay;
-assert.ok(lastBattle.turns.length > 2);
-assert.equal(lastBattle.turns[0][4], "start");
-assert.ok(lastBattle.turns.some((turn) => turn[6] > 0));
+assert.equal(lastBattle.format, 2);
+assert.ok(lastBattle.frames.length > 20);
+assert.equal(lastBattle.frames[0][0], 0);
+assert.ok(
+  lastBattle.events.some((event) => event[2] === "hit" && event[3] > 0),
+);
+assert.ok(lastBattle.events.some((event) => event[2] === "miss"));
+for (const side of [0, 1]) {
+  assert.ok(
+    lastBattle.events.some((event) => event[1] === side && event[2] === "cast"),
+  );
+  assert.ok(
+    new Set(
+      lastBattle.frames.map(
+        (frame) => frame[side + 1][1] + "/" + frame[side + 1][2],
+      ),
+    ).size > 5,
+  );
+}
+assert.ok(
+  lastBattle.events
+    .filter((event) => event[2] === "cast")
+    .some(
+      (event, index, casts) => index > 0 && event[1] === casts[index - 1][1],
+    ),
+);
 assert.throws(() =>
   saves.parse(JSON.stringify({ ...proposed, team: [65535] })),
 );

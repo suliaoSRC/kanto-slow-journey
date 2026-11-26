@@ -1421,130 +1421,194 @@ dialog::backdrop {
   min-height: 37px;
 }
 #battle-dialog {
-  width: min(760px, calc(100% - 24px));
+  width: min(930px, calc(100% - 24px));
+}
+#battle-dialog .dhead {
+  background: #fffcf2;
 }
 #battle-kind {
   margin-bottom: 3px;
 }
-.battle-stage {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-  aspect-ratio: 2.07;
-  min-height: 278px;
-  background:
-    linear-gradient(#142e2c42, #1d38349d),
-    var(--arena) center / cover;
-  border-bottom: 1px solid var(--line);
-  color: var(--ink);
+.arena-scoreboard {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  padding: 12px 15px;
+  background: #1e382e;
+  color: #fff9e8;
 }
-.battle-platform {
-  width: 34%;
-  height: 16%;
-  position: absolute;
-  border: 4px solid #f5f1cf80;
-  border-radius: 50%;
-  background: #b6c18aaf;
-  box-shadow: 0 8px 0 #283d3260;
-}
-.battle-platform.away {
-  right: 8%;
-  top: 39%;
-}
-.battle-platform.home {
-  left: 8%;
-  bottom: 10%;
-}
-.battle-fighter {
-  position: absolute;
-  width: min(37%, 255px);
-}
-.battle-fighter.ally {
-  left: 6%;
-  bottom: 10%;
-}
-.battle-fighter.foe {
-  right: 6%;
-  top: 9%;
-}
-.battle-hud {
-  background: #fffbed;
-  border: 1px solid #92a08e;
-  box-shadow: 0 3px 0 #263b3159;
+.arena-hud {
+  padding: 7px 10px;
+  border: 1px solid #628073;
+  background: #2c473b;
   border-radius: 8px;
-  padding: 7px 9px;
+  min-width: 0;
 }
-.battle-hud .rowline {
+.arena-hud .rowline {
   flex-wrap: wrap;
   gap: 2px 5px;
 }
-.battle-hud b {
+.arena-hud b {
   font-size: 0.94rem;
 }
-.battle-hud small {
+.arena-hud small {
+  color: #e0eacf;
   font-size: 0.75rem;
-  color: var(--muted);
+}
+.arena-clock {
+  color: #ffe1a2;
+  font-weight: 700;
+  font-size: 1.03rem;
+  font-variant-numeric: tabular-nums;
+}
+.arena-field {
+  background: #dfbd89 url("assets/scenes/arena.png") center/100% 100% no-repeat;
+  aspect-ratio: 16/9;
+  position: relative;
+  overflow: hidden;
+}
+.arena-field canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  image-rendering: pixelated;
 }
 .battle-hp {
   height: 7px;
   margin-top: 4px;
+  background: #446255;
   border-radius: 5px;
-  background: #dce4d5;
   overflow: hidden;
 }
 .battle-hp span {
   display: block;
   height: 100%;
-  background: #44834f;
+  background: #9ee48f;
+  transition: width 0.13s;
 }
 .battle-hp[data-low="true"] span {
-  background: #b84c35;
+  background: #ff9b6e;
 }
 .battle-hp-text {
   display: block;
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
-.battle-mon {
-  height: 84px;
-  display: grid;
-  place-items: center;
+.arena-status {
+  background: #fffdf3;
+  border-top: 1px solid #e1dac4;
+  padding: 12px 15px;
+  min-height: 57px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
 }
-.battle-mon .pokeicon {
-  width: 111px;
-  height: 91px;
-  filter: drop-shadow(0 3px 2px #20343075);
-}
-.battle-mon .type-icon {
-  width: 53px;
-  height: 52px;
-}
-.battle-mon .type-icon span {
-  font-size: 1.3rem;
-}
-.battle-stage[data-hit="ally"] .foe .battle-mon,
-.battle-stage[data-hit="foe"] .ally .battle-mon {
-  animation: battle-hit 0.23s ease-out;
-}
-@keyframes battle-hit {
-  35% {
-    transform: translateX(-4px);
-    opacity: 0.46;
-  }
-  62% {
-    transform: translateX(3px);
-  }
-}
-.battle-status {
-  padding: 14px 18px;
-  min-height: 69px;
-  display: grid;
-  gap: 4px;
-  align-content: center;
-}
-.battle-status span {
+.arena-status span {
   color: var(--muted);
   font-size: 0.875rem;
+}
+.item-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+}
+.pixel-crystal {
+  --item-color: #bd804d;
+  display: inline-block;
+  width: 25px;
+  height: 25px;
+  position: relative;
+  flex: none;
+  background: #3b4542;
+  clip-path: polygon(
+    40% 0,
+    70% 0,
+    70% 10%,
+    85% 10%,
+    85% 25%,
+    100% 25%,
+    100% 70%,
+    88% 70%,
+    88% 85%,
+    65% 85%,
+    65% 100%,
+    20% 100%,
+    20% 85%,
+    8% 85%,
+    8% 68%,
+    0 68%,
+    0 40%,
+    12% 40%,
+    12% 21%,
+    27% 21%,
+    27% 9%,
+    40% 9%
+  );
+}
+.pixel-crystal::before,
+.pixel-crystal::after {
+  content: "";
+  position: absolute;
+}
+.pixel-crystal::before {
+  inset: 3px;
+  background: var(--item-color);
+  clip-path: polygon(
+    39% 0,
+    72% 0,
+    72% 17%,
+    87% 17%,
+    87% 34%,
+    100% 34%,
+    100% 70%,
+    67% 70%,
+    67% 100%,
+    22% 100%,
+    22% 82%,
+    0 82%,
+    0 48%,
+    16% 48%,
+    16% 28%,
+    39% 28%
+  );
+}
+.pixel-crystal::after {
+  width: 6px;
+  height: 8px;
+  top: 6px;
+  left: 8px;
+  background: #fff4bd9c;
+  box-shadow:
+    4px -3px #fff8d592,
+    6px 8px #22353871;
+}
+.supply-grid .item-label {
+  width: 100%;
+}
+@media (max-width: 590px) {
+  .arena-scoreboard {
+    padding: 8px;
+    gap: 5px;
+  }
+  .arena-hud {
+    padding: 4px 5px;
+  }
+  .arena-clock {
+    font-size: 0.8rem;
+  }
+  .arena-hud b {
+    font-size: 0.8rem;
+  }
+  .arena-hud small {
+    font-size: 0.67rem;
+  }
+  .arena-status {
+    padding: 10px;
+    min-height: 57px;
+  }
 }
 @media (max-width: 790px) {
   .warehouse-layout {
@@ -1569,39 +1633,17 @@ dialog::backdrop {
   .warehouse-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-  .battle-stage {
-    min-height: 240px;
-  }
-  .battle-fighter {
-    width: 43%;
-  }
-  .battle-fighter.ally {
-    left: 4%;
-    bottom: 7%;
-  }
-  .battle-fighter.foe {
-    right: 4%;
-    top: 7%;
-  }
-  .battle-mon {
-    height: 61px;
-  }
-  .battle-mon .pokeicon {
-    width: 83px;
-    height: 70px;
-  }
-  .battle-mon .type-icon {
-    width: 44px;
-    height: 43px;
-  }
-  .battle-status {
-    padding: 11px 13px;
-    min-height: 64px;
-    font-size: 0.875rem;
-  }
 }
-@media (prefers-reduced-motion: reduce) {
-  .battle-stage[data-hit] .battle-mon {
-    animation: none !important;
-  }
+
+.dex-art-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 9px;
+  min-height: 44px;
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
+.dex-art-filter input {
+  flex: none;
 }

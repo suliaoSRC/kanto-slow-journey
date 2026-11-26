@@ -152,7 +152,8 @@ const JourneyStorage = (() => {
       .filter((stone) => s?.stones[stone])
       .map(
         (stone) =>
-          '<div class="item-line"><strong>' +
+          '<div class="item-line"><strong class="item-label">' +
+          stoneIcon(stone) +
           stone +
           "</strong><b>" +
           s.stones[stone] +
@@ -161,7 +162,7 @@ const JourneyStorage = (() => {
       .join("");
     updateMarkup(
       "storage-main",
-      '<div class="inventory-grid"><section class="inventory-card"><div class="rowline"><h2>精灵球</h2><strong class="inventory-quantity">' +
+      '<div class="inventory-grid"><section class="inventory-card"><div class="rowline"><h2 class="item-label"><i class="ball-icon" aria-hidden="true"></i>精灵球</h2><strong class="inventory-quantity">' +
         count +
         '</strong></div><p class="brief">探索每满 3 分钟补给 2 颗，最多 99 颗。</p><div class="block item-list"><div class="item-line"><span>普通捕捉可用</span><b>' +
         ordinary +
