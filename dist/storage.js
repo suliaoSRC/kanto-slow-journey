@@ -6,7 +6,12 @@ const JourneyStorage = (() => {
   let offset = 0;
   let pendingSave = null;
   const pageSize = 36;
-  const labels = { warehouse: "宝可梦仓库", bag: "道具背包", save: "存档" };
+  const labels = {
+    warehouse: "宝可梦仓库",
+    bag: "道具背包",
+    save: "存档",
+    art: "素材",
+  };
 
   function row(id, slot) {
     const mon = state.box[id];
@@ -185,6 +190,42 @@ const JourneyStorage = (() => {
         '>导出存档</button><button type="button" class="secondary" data-import-save="1">导入存档</button></div></div>',
     );
   }
+  function renderArt() {
+    if (!$("art-upload")) {
+      updateMarkup(
+        "storage-main",
+        '<div class="inventory-card save-card"><h2>宝可梦素材包</h2>' +
+          '<p class="brief block">导入 .kanto-art 文件，补充图鉴、仓库和赛场的宝可梦图像。导入的文件保存在当前浏览器。</p>' +
+          '<p class="block" id="art-count"></p><label class="art-picker">' +
+          '<span>选择素材包</span><input type="file" id="art-upload" accept=".kanto-art"></label>' +
+          '<p class="brief block" id="art-status" role="status"></p></div>',
+      );
+      $("art-upload").onchange = async (event) => {
+        const input = event.currentTarget,
+          file = input.files[0],
+          status = $("art-status");
+        if (!file) return;
+        input.disabled = true;
+        status.textContent = "正在读取素材包…";
+        try {
+          const result = await JourneySpriteArt.install(file);
+          if ($("art-count"))
+            $("art-count").textContent =
+              "当前已配图像 " + result.total + " / 1025 种";
+          status.textContent = result.persisted
+            ? "已导入，刷新后仍可使用。"
+            : "已导入。本次会话可用，浏览器未能保存素材包。";
+        } catch (error) {
+          status.textContent = error.message || "读取失败，请重新选择素材包。";
+        } finally {
+          input.disabled = false;
+          input.value = "";
+        }
+      };
+    }
+    const { total } = JourneySpriteArt.info();
+    $("art-count").textContent = "当前已配图像 " + total + " / 1025 种";
+  }
   function render() {
     if (!$("storage-main"))
       $("storage").innerHTML =
@@ -206,6 +247,7 @@ const JourneyStorage = (() => {
     );
     if (tab === "warehouse") warehouse();
     else if (tab === "bag") bag();
+    else if (tab === "art") renderArt();
     else saves();
   }
   function open(next = "warehouse") {
@@ -357,5 +399,11 @@ const JourneyStorage = (() => {
     }
     return false;
   }
-  return { render, handle };
+  return {
+    render,
+    handle,
+    select: (next) => {
+      tab = next;
+    },
+  };
 })();

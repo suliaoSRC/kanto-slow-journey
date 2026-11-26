@@ -1647,3 +1647,23 @@ dialog::backdrop {
 .dex-art-filter input {
   flex: none;
 }
+
+footer {
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.art-picker {
+  display: grid;
+  gap: 8px;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+.art-picker input {
+  max-width: 100%;
+  font-weight: 400;
+  padding: 8px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}

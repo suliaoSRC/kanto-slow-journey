@@ -35,11 +35,6 @@ const KEY = "kanto-slow-journey-v1",
       minute: "2-digit",
       hour12: false,
     });
-const animatedMon = new Set([
-  1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 25, 26,
-  27, 28, 35, 36, 41, 42, 43, 44, 45, 46, 47, 52, 53, 54, 55, 56, 57, 74, 81,
-  95, 100, 120, 121, 129, 130,
-]);
 const typePalette = {
   一般: "#817769",
   格斗: "#884839",
@@ -66,8 +61,8 @@ function colors(id) {
   return [first, typePalette[types[1]] || first];
 }
 function icon(id) {
-  if (animatedMon.has(+id))
-    return '<img class="pokeicon" src="assets/mon/' + id + '-icon.png" alt="">';
+  const image = JourneySpriteArt.iconUrl(+id);
+  if (image) return '<img class="pokeicon" src="' + image + '" alt="">';
   const [color, secondary] = colors(id);
   return (
     '<span class="pokeicon type-icon" aria-hidden="true" style="--mon-color:' +
@@ -232,7 +227,13 @@ $("dialog").addEventListener("click", (e) => {
   }
 });
 function choosePage(p, moveFocus = false) {
-  const nextPage = ["field", "map", "dex", "storage"].includes(p) ? p : "field";
+  if (p === "art") JourneyStorage.select("art");
+  const nextPage =
+    p === "art"
+      ? "storage"
+      : ["field", "map", "dex", "storage"].includes(p)
+        ? p
+        : "field";
   page = nextPage;
   for (const key of ["field", "map", "dex", "storage"])
     $(key).hidden = key !== page;
@@ -654,7 +655,7 @@ function dexCards() {
   const numericSearch = /^\d+$/.test(search);
   const ids = scope.filter(
     (id) =>
-      (!$("dexart").checked || animatedMon.has(id)) &&
+      (!$("dexart").checked || JourneySpriteArt.views(id) === 8) &&
       (!search ||
         (numericSearch
           ? fmt(id).startsWith(search) || String(id).startsWith(search)
@@ -725,7 +726,7 @@ function renderDex() {
     $("dex").innerHTML =
       '<div class="pagepanel"><div class="rowline"><h2>图鉴记录</h2><span class="num" id="dexcount" aria-live="polite"></span></div><div class="filter"><select id="dexregion" aria-label="图鉴范围"><option value="all">全国图鉴</option>' +
       options +
-      '</select><select id="dexfilter" aria-label="收集状态"><option>全部</option><option>已目击</option><option>已收服</option></select><input id="dexsearch" type="search" placeholder="搜索名称或编号" aria-label="搜索图鉴"><label class="dex-art-filter"><input type="checkbox" id="dexart">有像素图</label></div><div class="dexgrid" id="dexgrid"></div><div class="dex-pager" id="dexpager"></div></div>';
+      '</select><select id="dexfilter" aria-label="收集状态"><option>全部</option><option>已目击</option><option>已收服</option></select><input id="dexsearch" type="search" placeholder="搜索名称或编号" aria-label="搜索图鉴"><label class="dex-art-filter"><input type="checkbox" id="dexart">有八方向图</label></div><div class="dexgrid" id="dexgrid"></div><div class="dex-pager" id="dexpager"></div></div>';
     const reset = () => {
       dexPage = 0;
       dexCards();
@@ -1298,7 +1299,9 @@ window.addEventListener("storage", (e) => {
 document.addEventListener("visibilitychange", () => {
   if (!document.hidden) sync(undefined, true);
 });
-window.addEventListener("DOMContentLoaded", () => {
+window.addEventListener("DOMContentLoaded", async () => {
+  await JourneySpriteArt.ready;
+  $("local-art-credit").hidden = !JourneySpriteArt.info().directory;
   choosePage(location.hash.slice(1));
   sync(undefined, true);
 });

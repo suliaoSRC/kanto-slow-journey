@@ -101,23 +101,8 @@
       Math.round(12 * scale),
       Math.ceil(3 * scale),
     );
-    if (!animatedMon.has(id)) {
+    if (!JourneySpriteArt.draw(ctx, id, x, y, d, frame, scale))
       fieldMarker(id, x, y, d, frame);
-      return;
-    }
-    const sheet = img("assets/mon/" + id + ".png");
-    if (!usable(sheet)) return;
-    ctx.drawImage(
-      sheet,
-      frame * 64,
-      d * 64,
-      64,
-      64,
-      Math.round(x - 32 * scale),
-      Math.round(y - 60 * scale),
-      64 * scale,
-      64 * scale,
-    );
   }
   const pathCenters = { plateau: 163, volcanic: 150 };
   function pos(t, center) {

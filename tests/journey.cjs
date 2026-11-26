@@ -307,3 +307,44 @@ assert.throws(() => saves.parse(JSON.stringify({ ...proposed, balls: -1 })));
 console.log(
   "17 survey destinations, warehouse slot operations, battle replay and save transfer passed.",
 );
+
+const artPack = require("../dist/art-pack.js");
+function pngHeader(width, height) {
+  const value = Buffer.alloc(33);
+  Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]).copy(value);
+  value.writeUInt32BE(13, 8);
+  value.write("IHDR", 12);
+  value.writeUInt32BE(width, 16);
+  value.writeUInt32BE(height, 20);
+  return value;
+}
+function mockArt(directory, ...files) {
+  const header = Buffer.alloc(12);
+  const json = Buffer.from(JSON.stringify(directory));
+  header.write("KANTART1", 0);
+  header.writeUInt32LE(json.length, 8);
+  return Uint8Array.from(Buffer.concat([header, json, ...files])).buffer;
+}
+const iconHeader = pngHeader(64, 64);
+const sheetHeader = pngHeader(256, 128);
+const valid = mockArt([[906, 2, 33, 33]], iconHeader, sheetHeader);
+assert.equal(artPack.parse(valid).get(906).views, 2);
+assert.throws(() => artPack.parse(valid.slice(0, -1)));
+assert.throws(() =>
+  artPack.parse(mockArt([[906, 8, 33, 33]], iconHeader, sheetHeader)),
+);
+assert.throws(() =>
+  artPack.parse(
+    mockArt(
+      [
+        [906, 2, 33, 33],
+        [906, 2, 33, 33],
+      ],
+      iconHeader,
+      sheetHeader,
+      iconHeader,
+      sheetHeader,
+    ),
+  ),
+);
+console.log("Local browser art pack validity and bounds passed.");

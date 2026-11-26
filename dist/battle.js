@@ -1,7 +1,6 @@
 const JourneyBattle = (() => {
   const dialog = $("battle-dialog");
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
-  const images = new Map();
   const tint = {
     火: "#ff7846",
     水: "#5bdcff",
@@ -18,14 +17,6 @@ const JourneyBattle = (() => {
   let current = null;
   let observed = "";
 
-  function sprite(id) {
-    if (!images.has(id)) {
-      const image = new Image();
-      image.src = "assets/mon/" + id + ".png";
-      images.set(id, image);
-    }
-    return images.get(id);
-  }
   function drawMon(ctx, mon, actor, time, side) {
     const [, x, y, hp, pose, heading] = actor;
     const px = Math.round(x * 4.8),
@@ -41,20 +32,7 @@ const JourneyBattle = (() => {
       ctx.fillStyle = side ? "#f6bd706d" : "#95de867d";
       ctx.fillRect(px - 16, py - 5, 32, 2);
     }
-    const sheet = animatedMon.has(mon.id) ? sprite(mon.id) : null;
-    if (sheet?.complete && sheet.naturalWidth > 0) {
-      ctx.drawImage(
-        sheet,
-        walk * 64,
-        heading * 64,
-        64,
-        64,
-        Math.round(px - 32 * size),
-        Math.round(py - 60 * size),
-        Math.round(64 * size),
-        Math.round(64 * size),
-      );
-    } else {
+    if (!JourneySpriteArt.draw(ctx, mon.id, px, py, heading, walk, size)) {
       const [color, secondary] = colors(mon.id);
       ctx.fillStyle = "#1e332a";
       ctx.fillRect(px - 11, py - 24, 22, 22);
