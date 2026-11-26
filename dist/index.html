@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#172f28" />
+    <title>关都慢旅行 · 宝可梦挂机冒险</title>
+    <link rel="icon" href="assets/mon/25-icon.png" />
+    <link rel="stylesheet" href="style.css" />
+    <script defer src="catalog.js"></script>
+    <script defer src="expeditions.js"></script>
+    <script defer src="data.js"></script>
+    <script defer src="engine.js"></script>
+    <script defer src="save.js"></script>
+    <script defer src="app.js"></script>
+    <script defer src="storage.js"></script>
+    <script defer src="battle.js"></script>
+    <script defer src="field.js"></script>
+  </head>
+  <body>
+    <header class="masthead">
+      <div class="top">
+        <a href="#field" class="brand" aria-label="关都慢旅行首页">
+          <span class="brand-mark"><i class="pokeball"></i></span>
+          <span>关都慢旅行</span>
+        </a>
+        <nav aria-label="主导航">
+          <button
+            type="button"
+            data-page="field"
+            class="active"
+            aria-current="page"
+          >
+            <i data-symbol="field"></i>旅行现场
+          </button>
+          <button type="button" data-page="map">
+            <i data-symbol="map"></i>地区地图
+          </button>
+          <button type="button" data-page="dex">
+            <i data-symbol="dex"></i>宝可梦图鉴
+          </button>
+          <button type="button" data-page="storage">
+            <i data-symbol="bag"></i>背包与仓库
+          </button>
+        </nav>
+        <div class="save" id="save">
+          <i data-symbol="save"></i><span id="save-label">本地存档</span>
+        </div>
+      </div>
+    </header>
+    <main>
+      <div class="heading">
+        <h1 id="pagetitle" tabindex="-1">旅行现场</h1>
+        <button
+          type="button"
+          class="region"
+          id="region"
+          aria-label="查看关都地区地图"
+        >
+          <i data-symbol="pin"></i><span id="region-name">关都地区</span>
+        </button>
+      </div>
+      <section id="field" aria-labelledby="pagetitle">
+        <div class="columns">
+          <article class="scene-card">
+            <div class="scene" id="scene">
+              <canvas
+                id="world"
+                width="480"
+                height="240"
+                aria-label="关都旅行的像素场景"
+              ></canvas>
+              <div class="where">
+                <span class="light"></span><span id="scenestate">出发地点</span>
+              </div>
+              <button
+                type="button"
+                class="expand"
+                id="expand"
+                aria-label="放大场景"
+                title="放大场景"
+              >
+                <i data-symbol="expand"></i>
+              </button>
+              <div class="placard">
+                <small id="sceneEN">PALLET TOWN</small
+                ><b id="sceneName">真新镇</b>
+              </div>
+            </div>
+            <div class="routefoot" id="routefoot"></div>
+          </article>
+          <div class="sidebar" role="group" aria-label="旅行信息">
+            <article class="card squad">
+              <div class="cardtitle">
+                <h2><i data-symbol="team"></i>同行伙伴</h2>
+                <span class="num" id="teamsize">0 / 3</span>
+              </div>
+              <div id="party"></div>
+            </article>
+            <article class="card pack">
+              <div class="cardtitle">
+                <h2><i data-symbol="bag"></i>旅行背包</h2>
+              </div>
+              <div id="bag"></div>
+              <button type="button" class="capture-link" id="prefs">
+                <i data-symbol="sliders"></i><span>捕捉偏好</span
+                ><strong id="capture-mode">优先新种</strong
+                ><i data-symbol="chevron"></i>
+              </button>
+            </article>
+            <article class="card badges">
+              <div class="cardtitle">
+                <h2><i data-symbol="badge"></i>道馆徽章</h2>
+                <span class="num" id="badgecount">0 / 8</span>
+              </div>
+              <div id="badgegrid"></div>
+              <button
+                type="button"
+                class="capture-link"
+                id="league-entry"
+                data-league="1"
+              >
+                <i data-symbol="badge"></i><span>关都联盟</span
+                ><strong id="league-progress">0 / 5</strong
+                ><i data-symbol="chevron"></i>
+              </button>
+            </article>
+          </div>
+          <article class="card journal">
+            <div class="cardtitle">
+              <h2><i data-symbol="log"></i>旅行日志</h2>
+              <button type="button" class="textbtn" id="morelog">
+                查看全部<i data-symbol="chevron"></i>
+              </button>
+            </div>
+            <div id="logrows"></div>
+          </article>
+        </div>
+      </section>
+      <section id="map" aria-labelledby="pagetitle" hidden></section>
+      <section id="dex" aria-labelledby="pagetitle" hidden></section>
+      <section id="storage" aria-labelledby="pagetitle" hidden></section>
+      <footer>
+        <a href="assets/mon/credits.txt" target="_blank" rel="noopener"
+          >素材与图鉴来源</a
+        >
+      </footer>
+    </main>
+    <dialog id="dialog" aria-labelledby="dtitle">
+      <div class="dhead">
+        <h2 id="dtitle"></h2>
+        <button type="button" class="iconbtn" id="close" aria-label="关闭">
+          <i data-symbol="close"></i>
+        </button>
+      </div>
+      <div id="dcontent"></div>
+    </dialog>
+    <dialog id="battle-dialog" aria-labelledby="battle-title">
+      <div class="dhead">
+        <div>
+          <p class="miniinfo" id="battle-kind"></p>
+          <h2 id="battle-title"></h2>
+        </div>
+        <button type="button" class="secondary" id="battle-skip">
+          跳过演出
+        </button>
+      </div>
+      <div id="battle-body"></div>
+    </dialog>
+    <div class="toast" id="toast" role="status"></div>
+  </body>
+</html>
